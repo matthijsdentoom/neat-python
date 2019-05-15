@@ -1,8 +1,6 @@
 import pickle
 
-from gym_multi_robot import visualize
-
-from neat import Config, DefaultSpeciesSet, DefaultReproduction, DefaultStagnation
+from neat import Config, DefaultSpeciesSet, DefaultReproduction, DefaultStagnation, visualize
 from neat.state_machine_genome import StateMachineGenome
 
 

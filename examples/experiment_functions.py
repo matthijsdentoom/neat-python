@@ -1,6 +1,7 @@
 from subprocess import CalledProcessError
 
-from gym_multi_robot import visualize
+from neat import visualize
+
 from neat.nn.feed_forward import FeedForwardNetwork
 from neat.state_machine_network import StateMachineNetwork
 

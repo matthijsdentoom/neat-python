@@ -1,8 +1,10 @@
 import os
 import time
+
+from neat import visualize
+
 import neat
-from gym_multi_robot import visualize
-from gym_multi_robot.object_serializer import ObjectSerializer
+from neat.object_serializer import ObjectSerializer
 
 
 class SingleExperiment:
