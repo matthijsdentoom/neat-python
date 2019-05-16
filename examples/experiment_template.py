@@ -19,6 +19,9 @@ class SingleExperiment:
         self.winner = None  # Stores the winner of the last experiment.
         self.stats = None   # Stores the stats about the last experiment.
         self.base_directory = base_directory
+        self.p = None
+
+        self.init_base_directory()      # Initialise the directory for all the outputs
 
     def eval_genomes(self, genomes, config):
         start_time = time.time()
@@ -46,29 +49,26 @@ class SingleExperiment:
             self.exp_name = name
 
         # Create the population, which is the top-level object for a NEAT run.
-        p = neat.Population(self.learning_config)
+        self.p = neat.Population(self.learning_config)
 
         # Add a stdout reporter to show progress in the terminal.
-        p.add_reporter(neat.StdOutReporter(True))
+        self.p.add_reporter(neat.StdOutReporter(True))
         self.stats = neat.StatisticsReporter()
-        p.add_reporter(self.stats)
+        self.p.add_reporter(self.stats)
 
         # Run experiments
         try:
-            self.winner = p.run(self.eval_genomes, self.num_generations)
+            self.winner = self.p.run(self.eval_genomes, self.num_generations)
         except Exception:
             raise
         finally:
-            self.winner = p.best_genome
+            self.winner = self.p.best_genome
 
             self.output_stats()
             self.output_winner()
 
-
     def output_winner(self):
         """This function outputs the current winner in graph and in pickle file."""
-        self.init_base_directory()
-
         net_filename = self.base_directory + 'graph_winner' + str(self.exp_name)
         genome_filename = self.base_directory + 'winner' + str(self.exp_name)
 
@@ -81,8 +81,6 @@ class SingleExperiment:
 
     def output_stats(self):
         """ This function outputs the statistics in figures and in reusable objects."""
-        self.init_base_directory()
-
         fitness_out_file = self.base_directory + 'avg_fitness_' + str(self.exp_name) + '.svg'
         species_out_file = self.base_directory + 'species_' + str(self.exp_name) + '.svg'
         stats_out_file = self.base_directory + 'stats' + str(self.exp_name)
