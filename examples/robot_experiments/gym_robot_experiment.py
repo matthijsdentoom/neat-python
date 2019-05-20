@@ -1,16 +1,16 @@
 import math
 
 from examples.experiment_functions import ExperimentRunner
-from examples.experiment_template import SingleExperiment
+from examples.experiment_template import GymExperiment
 
 
-class GymRobotExperiment(SingleExperiment):
+class GymRobotExperiment(GymExperiment):
     """ This class adds the custom functions that need to be applied in a danger zone experiment.
         In this case this is the plotting of the trajectory.
     """
 
     def output_winner(self):
-        SingleExperiment.output_winner(self)
+        GymExperiment.output_winner(self)
 
         self.exp_runner.render = True
 
