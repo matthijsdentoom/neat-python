@@ -1,7 +1,3 @@
-from subprocess import CalledProcessError
-
-from neat import visualize
-
 from neat.nn.feed_forward import FeedForwardNetwork
 from neat.state_machine_network import StateMachineNetwork
 
@@ -100,11 +96,6 @@ class SimulationController:
         """ This function calculates the desired course of action based on the given observation."""
         pass
 
-    @classmethod
-    def draw(cls, genome, config, file_name):
-        """ This function draws the given controller."""
-        pass
-
 
 class FeedForwardNetworkController(SimulationController):
     """ This class calculates the next actions based on a feed forward network."""
@@ -114,10 +105,6 @@ class FeedForwardNetworkController(SimulationController):
 
     def step(self, observation):
         return self.net.activate(observation)
-
-    @classmethod
-    def draw(cls, genome, config, file_name):
-        visualize.draw_net(config, genome, filename=file_name)
 
 
 class StateMachineController(SimulationController):
@@ -139,13 +126,6 @@ class StateMachineController(SimulationController):
 
         return actions
 
-    @classmethod
-    def draw(cls, genome, config, file_name):
-        try:
-            visualize.draw_state_machine(config, genome, filename=file_name)
-        except CalledProcessError:
-            print('State machine graph failed, continuing without producing graph.')
-
 
 class LoggingStateMachineController(StateMachineController):
     """ This class logs the usage of different states. This means that it keeps a dictionary which counts the number
@@ -154,18 +134,14 @@ class LoggingStateMachineController(StateMachineController):
 
     def __init__(self):
         StateMachineController.__init__(self)
-        self.state_logger = dict()
+        self.state_logger = []
 
     def reset(self, genome, config):
         StateMachineController.reset(self, genome, config)
-        self.state_logger = dict()
+        self.state_logger = []
 
     def step(self, observation):
         actions = StateMachineController.step(self, observation)
 
-        # Keep a log of the state the robot is in.
-        if self.current_state not in self.state_logger:
-            self.state_logger[self.current_state] = 0
-        self.state_logger[self.current_state] += 1
-
+        self.state_logger.append(self.current_state)    # Append the current state to the logger.
         return actions
