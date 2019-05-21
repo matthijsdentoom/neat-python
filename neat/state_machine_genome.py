@@ -11,8 +11,8 @@ from neat.state_machine_genes import StateGene, TransitionGene
 
 class StateMachineGenomeConfig(object):
     """ Class containing the parameters required to actually build the config file."""
-    def __init__(self, params):
 
+    def __init__(self, params):
         # Create full set of available activation functions.
         self.activation_defs = ActivationFunctionSet()
         # ditto for aggregation functions - name difference for backward compatibility
@@ -21,7 +21,7 @@ class StateMachineGenomeConfig(object):
         self._params = [ConfigParameter('num_inputs', int),
                         ConfigParameter('num_outputs', int),
                         ConfigParameter('num_initial_states', int),
-                        ConfigParameter('max_num_states', int, 1000),   # Note the default.
+                        ConfigParameter('max_num_states', int, 1000),  # Note the default.
                         ConfigParameter('state_add_prob', float),
                         ConfigParameter('state_delete_prob', float),
                         ConfigParameter('transition_add_prob', float),
@@ -39,10 +39,12 @@ class StateMachineGenomeConfig(object):
         for p in self._params:
             setattr(self, p.name, p.interpret(params))
 
+        self.input_keys = [-i - 1 for i in range(self.num_inputs)]
+        self.output_keys = [i for i in range(self.num_outputs)]
+
         self.node_indexer = self.num_initial_states
 
     def get_new_node_key(self):
-
         new_node = self.node_indexer
         self.node_indexer += 1
 

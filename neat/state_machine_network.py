@@ -8,6 +8,7 @@ from neat.aggregations import sum_aggregation
 
 class StateMachineNetwork(object):
     """ This class represents a working state machine which can actually run on robot or in simulation. """
+
     def __init__(self, states, transitions):
         """ Parameters:
             states : dict() where states are sorted based on state_id
@@ -111,7 +112,6 @@ class State(object):
         self.num_inputs = len(weights[0])
 
     def activate(self, inputs):
-
         # Check that the inputs and the weightmatrix are of the same length.
         assert len(inputs) == self.num_inputs
 
@@ -120,10 +120,11 @@ class State(object):
         combined_weights = np.multiply(np_inputs, self.weights)
 
         # Note that this sum fails in case of a single row of weight
-        aggregate = [self.act_func(self.agg_func(weight_row)) for weight_row in combined_weights]
-
+        aggregate = [self.agg_func(weight_row) for weight_row in combined_weights]
         assert len(aggregate) == self.num_outputs
-        return (aggregate + self.biases).tolist()
+
+        aggregate += self.biases  # Add biases
+        return [self.act_func(output) for output in aggregate]  # Apply activation function.
 
 
 class Transition(object):
@@ -135,7 +136,6 @@ class Transition(object):
         self.conditions = []
 
     def add_condition(self, condition):
-
         assert isinstance(condition, Condition)
         self.conditions.append(condition)
 
