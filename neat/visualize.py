@@ -238,12 +238,17 @@ def draw_state_machine(config, genome, view=False, filename=None, node_names=Non
             c.attr(label='State ' + str(state.key))
 
             # Draw inputs
-            for i in range(config.genome_config.num_inputs):
-                dot.node('I_' + str(i) + '_' + str(state.key), _attributes=node_attrs)
+            for k in config.genome_config.input_keys:
+                name = node_names.get(k, str(k))
+                input_attrs = {'style': 'filled', 'shape': 'box', 'fillcolor': node_colors.get(k, 'lightgray')}
+                dot.node(name, _attributes=input_attrs)
 
             # Draw outputs
-            for j in range(config.genome_config.num_outputs):
-                dot.node('O_' + str(j) + '_' + str(state.key), _attributes=node_attrs)
+            for k in config.genome_config.output_keys:
+                name = node_names.get(k, str(k))
+                node_attrs = {'style': 'filled', 'fillcolor': node_colors.get(k, 'lightblue')}
+
+                dot.node(name, _attributes=node_attrs)
 
             # Draw the weights on the nodes.
             for i in range(config.genome_config.num_inputs):
@@ -251,8 +256,7 @@ def draw_state_machine(config, genome, view=False, filename=None, node_names=Non
                     style = 'solid'
                     color = 'green' if state.weights[j][i] > 0 else 'red'
                     width = str(0.1 + abs(state.weights[j][i] / 5.0))
-                    c.edge('I_' + str(i) + '_' + str(state.key), 'O_' + str(j) + '_' + str(state.key),
-                           _attributes={'style': style, 'color': color, 'penwidth': width})
+                    c.edge('-' + str(i + 1), str(j), _attributes={'style': style, 'color': color, 'penwidth': width})
 
     for cg in genome.transitions.values():
         if cg.enabled or show_disabled:
