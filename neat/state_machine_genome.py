@@ -2,53 +2,29 @@ from random import random, choice
 
 from neat.config import ConfigParameter
 
-from neat.aggregations import AggregationFunctionSet
 from neat.six_util import iteritems
 
-from neat.activations import ActivationFunctionSet
+from neat.state_machine_base_genome import StateMachineBaseGenomeConfig
 from neat.state_machine_genes import StateGene, TransitionGene
 
 
-class StateMachineGenomeConfig(object):
+class StateMachineGenomeConfig(StateMachineBaseGenomeConfig):
     """ Class containing the parameters required to actually build the config file."""
 
+    state_machine_params = [ConfigParameter('transition_add_prob', float),
+                            ConfigParameter('transition_delete_prob', float)]
+
     def __init__(self, params):
-        # Create full set of available activation functions.
-        self.activation_defs = ActivationFunctionSet()
-        # ditto for aggregation functions - name difference for backward compatibility
-        self.aggregation_function_defs = AggregationFunctionSet()
 
-        self._params = [ConfigParameter('num_inputs', int),
-                        ConfigParameter('num_outputs', int),
-                        ConfigParameter('num_initial_states', int),
-                        ConfigParameter('max_num_states', int, 1000),  # Note the default.
-                        ConfigParameter('state_add_prob', float),
-                        ConfigParameter('state_delete_prob', float),
-                        ConfigParameter('transition_add_prob', float),
-                        ConfigParameter('transition_delete_prob', float),
-                        ConfigParameter('compatibility_disjoint_coefficient', float),
-                        ConfigParameter('compatibility_difference_coefficient', float)]
+        StateMachineBaseGenomeConfig.__init__(self, params)
 
-        # Gather configuration data from the gene classes.
-        self.node_gene_type = params['node_gene_type']
-        self._params += self.node_gene_type.get_config_params()
+        new_params = list(StateMachineGenomeConfig.state_machine_params)
         self.connection_gene_type = params['connection_gene_type']
-        self._params += self.connection_gene_type.get_config_params()
+        new_params += self.connection_gene_type.get_config_params()
+        self._params += new_params
 
-        # Use the configuration data to interpret the supplied parameters.
-        for p in self._params:
+        for p in new_params:
             setattr(self, p.name, p.interpret(params))
-
-        self.input_keys = [-i - 1 for i in range(self.num_inputs)]
-        self.output_keys = [i for i in range(self.num_outputs)]
-
-        self.node_indexer = self.num_initial_states
-
-    def get_new_node_key(self):
-        new_node = self.node_indexer
-        self.node_indexer += 1
-
-        return new_node
 
 
 class StateMachineGenome(object):
