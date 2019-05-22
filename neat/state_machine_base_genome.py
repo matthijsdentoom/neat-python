@@ -24,6 +24,9 @@ class StateMachineBaseGenomeConfig:
         # Gather configuration data from the gene classes.
         self.node_gene_type = params['node_gene_type']
         self._params += self.node_gene_type.get_config_params()
+        self.connection_gene_type = params['connection_gene_type']
+        self._params += self.connection_gene_type.get_config_params()
+
 
         # Use the configuration data to interpret the supplied parameters.
         for p in self._params:

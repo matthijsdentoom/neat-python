@@ -1,3 +1,4 @@
+import itertools
 from random import random
 
 import numpy as np
@@ -12,26 +13,29 @@ from neat.six_util import iteritems
 from neat.state_machine_base_genome import StateMachineBaseGenomeConfig
 
 
-class SelectorStateGene(BaseGene):
+class SelectorStateGene:
     """
     This state gene represents the gene of a state in a state selector network, so it has a seperate nn,
     which selects the states.
     """
-
+    _gene_attributes = []
     _non_added_attributes = [BiasesAttribute('selector_biases', 'selector_bias'),
                              WeightsAttribute('selector_weights', 'selector_weight')]
 
     def __init__(self, key, num_states):
         assert isinstance(key, int), "StateGene key must be an int, not {!r}".format(key)
-        super(SelectorStateGene, self).__init__(key)
+        self.key = key
         self.num_states = num_states
         self.biases = None
         self.weights = None
+        self.aggregation = 'sum'
+        self.activation = 'sigmoid'
 
     @classmethod
     def get_config_params(cls):
-        params = BaseGene.get_config_params()
-        params.extend(attr.get_config_params() for attr in cls._non_added_attributes)
+
+        attributes = [attr.get_config_params() for attr in cls._non_added_attributes]
+        return list(itertools.chain(*attributes))
 
     def init_attributes(self, config):
         self.biases = self._non_added_attributes[0].init_value(config, self.num_states)
@@ -48,6 +52,9 @@ class SelectorStateGene(BaseGene):
 
         return state
 
+    def crossover(self, gene2):
+        pass
+
 
 class StateSelectorGenome:
     """ Genome of the state selector, which selects the state to go to based on a seperate nn."""
@@ -62,8 +69,6 @@ class StateSelectorGenome:
         self.key = key
         self.states = {}
         self.selectors = {}
-        self.aggregation = 'sum'
-        self.activation = 'sigmoid'
         self.fitness = None
 
     def configure_new(self, config):

@@ -43,7 +43,7 @@ class StateSelectorNetwork:
 
         # Select the index with the highest score and return it.
         state_index = state_scores.index(max(state_scores))
-        return self.states[state_index].key
+        return self.state_keys[state_index]
 
     @staticmethod
     def create(genome, config):

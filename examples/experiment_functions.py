@@ -1,3 +1,5 @@
+from neat.state_selector_network import StateSelectorNetwork
+
 from neat.nn.feed_forward import FeedForwardNetwork
 from neat.state_machine_network import StateMachineNetwork
 
@@ -125,6 +127,16 @@ class StateMachineController(SimulationController):
         self.current_state = new_state
 
         return actions
+
+
+class StateSelectorController(StateMachineController):
+    """ This class calculates the next action of a state machine controller. States are switched based on a selector,
+        which decides on the switch depending on the state.
+    """
+
+    def reset(self, genome, config):
+        self.net = StateSelectorNetwork.create(genome, config.genome_config)
+        self.current_state = 0
 
 
 class LoggingStateMachineController(StateMachineController):
