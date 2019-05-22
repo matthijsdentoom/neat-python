@@ -98,6 +98,10 @@ class SimulationController:
         """ This function calculates the desired course of action based on the given observation."""
         pass
 
+    def get_states(self):
+        """ This function returns the states the robot has been in. (if not implemented it returns an empty list."""
+        return []
+
 
 class FeedForwardNetworkController(SimulationController):
     """ This class calculates the next actions based on a feed forward network."""
@@ -131,6 +135,9 @@ class StateMachineController(SimulationController):
         self.state_logger.append(self.current_state)    # Append the current state to the logger.
 
         return actions
+
+    def get_states(self):
+        return self.state_logger
 
 
 class SMControllerFactory:
