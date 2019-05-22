@@ -1,9 +1,9 @@
-import numpy as np
 import operator
 from random import choice
 
 from neat.activations import identity_activation
 from neat.aggregations import sum_aggregation
+from neat.nn.perceptron_network import PerceptronNetwork
 
 
 class StateMachineNetwork(object):
@@ -71,9 +71,7 @@ class StateMachineNetwork(object):
             aggregation_function = config.aggregation_function_defs.get(state.aggregation)
             activation_function = config.activation_defs.get(state.activation)
 
-            network_state = State(state.key, aggregation_function, activation_function)
-            network_state.set_biases(state.biases)
-            network_state.set_weights(state.weights)
+            network_state = State(state.key, state.weights, state.biases, aggregation_function, activation_function)
             network_states.append(network_state)
 
         network_transitions = []
@@ -90,41 +88,15 @@ class StateMachineNetwork(object):
 class State(object):
     """ This class represents a state in the state machine. """
 
-    def __init__(self, identifier, aggregation_func=sum_aggregation, activation_func=identity_activation):
+    def __init__(self, identifier, weight_matrix, bias_vector, aggregation_func=sum_aggregation,
+                 activation_func=identity_activation):
         """ Default the weights are summed without any function being applied to them."""
         self.id = identifier
-        self.biases = None
-        self.weights = None
-        self.agg_func = aggregation_func
-        self.act_func = activation_func
-        self.num_inputs = 0
-        self.num_outputs = 0
-
-    def set_biases(self, biases):
-        """ Enter a list containing the biases of the network (same length as number of outputs) """
-        self.biases = np.array(biases)
-        self.num_outputs = len(biases)
-
-    def set_weights(self, weights):
-        # length rows are #inputs, length columns are #outputs.
-        self.weights = np.array(weights)
-
-        self.num_inputs = len(weights[0])
+        self.perceptron_network = PerceptronNetwork(weight_matrix, bias_vector, aggregation_func, activation_func)
 
     def activate(self, inputs):
-        # Check that the inputs and the weightmatrix are of the same length.
-        assert len(inputs) == self.num_inputs
 
-        # Perform neural network operations.
-        np_inputs = np.array(inputs)
-        combined_weights = np.multiply(np_inputs, self.weights)
-
-        # Note that this sum fails in case of a single row of weight
-        aggregate = [self.agg_func(weight_row) for weight_row in combined_weights]
-        assert len(aggregate) == self.num_outputs
-
-        aggregate += self.biases  # Add biases
-        return [self.act_func(output) for output in aggregate]  # Apply activation function.
+        return self.perceptron_network.activate(inputs)
 
 
 class Transition(object):
