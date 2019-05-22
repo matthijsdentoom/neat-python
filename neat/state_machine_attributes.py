@@ -29,12 +29,15 @@ class AttributedAttribute(BaseAttribute):
 class BiasesAttribute(AttributedAttribute):
     _config_items = {}
 
-    def __init__(self, name, **default_dict):
-        AttributedAttribute.__init__(self, name, FloatAttribute('bias'), **default_dict)
+    def __init__(self, name, attr_name='weight', **default_dict):
+        AttributedAttribute.__init__(self, name, FloatAttribute(attr_name), **default_dict)
 
-    def init_value(self, config):
+    def init_value(self, config, length=None):
         # Row with a bias for each output value.
-        return np.array([self.get_attr().init_value(config) for _ in range(config.num_outputs)])
+        if length is None:
+            length = config.num_outputs
+
+        return np.array([self.get_attr().init_value(config) for _ in range(length)])
 
     def mutate_value(self, value, config):
         return np.array([self.get_attr().mutate_value(i, config) for i in value])
@@ -43,12 +46,16 @@ class BiasesAttribute(AttributedAttribute):
 class WeightsAttribute(AttributedAttribute):
     _config_items = {}
 
-    def __init__(self, name, **default_dict):
-        AttributedAttribute.__init__(self, name, FloatAttribute('weight'), **default_dict)
+    def __init__(self, name, attr_name='bias', **default_dict):
+        AttributedAttribute.__init__(self, name, FloatAttribute(attr_name), **default_dict)
 
-    def init_value(self, config):
+    def init_value(self, config, num_outputs=None):
+
+        if num_outputs is None:
+            num_outputs = config.num_outputs
+
         return np.array([[self.get_attr().init_value(config) for _ in range(config.num_inputs)]
-                         for _ in range(config.num_outputs)])
+                         for _ in range(num_outputs)])
 
     def mutate_value(self, value, config):
         """ Mutates all the weight as described in the config files.

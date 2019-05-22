@@ -98,6 +98,14 @@ class State(object):
 
         return self.perceptron_network.activate(inputs)
 
+    @staticmethod
+    def create(state_gene, config):
+        aggregation_function = config.aggregation_function_defs.get(state_gene.aggregation)
+        activation_function = config.activation_defs.get(state_gene.activation)
+        network_state = State(state_gene.key, state_gene.weights, state_gene.biases,
+                              aggregation_function, activation_function)
+        return network_state
+
 
 class Transition(object):
     """" This class represents a transition in the state machine"""
