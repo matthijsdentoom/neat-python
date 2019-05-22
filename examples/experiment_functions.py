@@ -114,46 +114,47 @@ class StateMachineController(SimulationController):
         needs to be taken into account and updated, as this is also part of the state machine.
     """
 
-    def __init__(self):
+    def __init__(self, controller_cls):
         SimulationController.__init__(self)
+        self.controller_cls = controller_cls
         self.current_state = 0
+        self.state_logger = []
 
     def reset(self, genome, config):
-        self.net = StateMachineNetwork.create(genome, config.genome_config)
+        self.net = self.controller_cls.create(genome, config.genome_config)
         self.current_state = 0
+        self.state_logger = []
 
     def step(self, observation):
         new_state, actions = self.net.activate(self.current_state, observation)
         self.current_state = new_state
-
-        return actions
-
-
-class StateSelectorController(StateMachineController):
-    """ This class calculates the next action of a state machine controller. States are switched based on a selector,
-        which decides on the switch depending on the state.
-    """
-
-    def reset(self, genome, config):
-        self.net = StateSelectorNetwork.create(genome, config.genome_config)
-        self.current_state = 0
-
-
-class LoggingStateMachineController(StateMachineController):
-    """ This class logs the usage of different states. This means that it keeps a dictionary which counts the number
-        of times the robot is in one state.
-    """
-
-    def __init__(self):
-        StateMachineController.__init__(self)
-        self.state_logger = []
-
-    def reset(self, genome, config):
-        StateMachineController.reset(self, genome, config)
-        self.state_logger = []
-
-    def step(self, observation):
-        actions = StateMachineController.step(self, observation)
-
         self.state_logger.append(self.current_state)    # Append the current state to the logger.
+
         return actions
+
+
+class SMControllerFactory:
+    """ This class generates state machine controllers."""
+
+    def __init__(self, controller_cls):
+        self.controller_cls = controller_cls
+
+    def generate(self, genome, config):
+        controller = StateMachineController(self.controller_cls)
+        controller.reset(genome, config)
+        return controller
+
+    def __str__(self):
+        return 'Controller factory with {0}.'.format(self.controller_cls.__name__)
+
+
+class FFControllerFactory:
+    """ This class generates neural network controllers. """
+
+    def generate(self, genome, config):
+        controller = FeedForwardNetworkController()
+        controller.reset(genome, config)
+        return controller
+
+    def __str__(self):
+        return 'Controller factory with feed-forward controller.'
