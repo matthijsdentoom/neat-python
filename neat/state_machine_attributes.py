@@ -29,7 +29,7 @@ class AttributedAttribute(BaseAttribute):
 class BiasesAttribute(AttributedAttribute):
     _config_items = {}
 
-    def __init__(self, name, attr_name='weight', **default_dict):
+    def __init__(self, name, attr_name='bias', **default_dict):
         AttributedAttribute.__init__(self, name, FloatAttribute(attr_name), **default_dict)
 
     def init_value(self, config, length=None):
@@ -46,7 +46,7 @@ class BiasesAttribute(AttributedAttribute):
 class WeightsAttribute(AttributedAttribute):
     _config_items = {}
 
-    def __init__(self, name, attr_name='bias', **default_dict):
+    def __init__(self, name, attr_name='weight', **default_dict):
         AttributedAttribute.__init__(self, name, FloatAttribute(attr_name), **default_dict)
 
     def init_value(self, config, num_outputs=None):
