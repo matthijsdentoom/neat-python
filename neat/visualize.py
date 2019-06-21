@@ -1,4 +1,5 @@
 import copy
+import operator
 import warnings
 
 import graphviz
@@ -209,11 +210,6 @@ def draw_state_machine(config, genome, view=False, filename=None, node_names=Non
     if filename is not None:
         filename += '.gv'
 
-    if node_names is None:
-        node_names = {}
-
-    assert type(node_names) is dict
-
     if node_colors is None:
         node_colors = {}
 
@@ -230,48 +226,80 @@ def draw_state_machine(config, genome, view=False, filename=None, node_names=Non
     dot = graphviz.Digraph(format=fmt, node_attr=node_attrs)
     dot.attr(compound='true')
 
+    # Create visualization of state machines, that shows how states interact.
     for state in genome.states.values():
-        with dot.subgraph(name='cluster' + str(state.key)) as c:
-            c.attr(shape='circle')
-            c.attr(style='filled')
-            c.attr(color='lightgray')
-            c.attr(label='State ' + str(state.key))
 
-            # Draw inputs
-            for k in config.genome_config.input_keys:
-                name = node_names.get(k, str(k))
-                input_attrs = {'style': 'filled', 'shape': 'box', 'fillcolor': node_colors.get(k, 'lightgray')}
-                dot.node(name, _attributes=input_attrs)
-
-            # Draw outputs
-            for k in config.genome_config.output_keys:
-                name = node_names.get(k, str(k))
-                node_attrs = {'style': 'filled', 'fillcolor': node_colors.get(k, 'lightblue')}
-
-                dot.node(name, _attributes=node_attrs)
-
-            # Draw the weights on the nodes.
-            for i in range(config.genome_config.num_inputs):
-                for j in range(config.genome_config.num_outputs):
-                    style = 'solid'
-                    color = 'green' if state.weights[j][i] > 0 else 'red'
-                    width = str(0.1 + abs(state.weights[j][i] / 5.0))
-                    c.edge('-' + str(i + 1), str(j), _attributes={'style': style, 'color': color, 'penwidth': width})
+        attrs = {'style': 'filled',
+                 'fillcolor': node_colors.get(state, 'white')}
+        dot.node(str('State {0}'.format(state.key)), _attributes=attrs)
 
     for cg in genome.transitions.values():
         if cg.enabled or show_disabled:
 
             begin, end = cg.key
-            a = 'cluster' + str(begin)
-            b = 'cluster' + str(end)
             style = 'solid' if cg.enabled else 'dotted'
-            label = str(cg.conditions)
-            # TODO: add conditions.
-            dot.edge('I_0_' + str(end), 'I_0_' + str(begin), ltail=b, lhead=a,
-                     _attributes={'style': style, 'color': 'black', 'penwidth': '1', 'label': label})
+            label = conditions_to_str(cg.conditions)
+            dot.edge('State ' + str(end), 'State ' + str(begin),
+                     _attributes={'style': style, 'color': 'black', 'penwidth': '1', 'taillabel': label})
 
     dot.render(filename, view=view)
-    return dot
+
+    # Create a separate file for all states to increase visualisation understandability.
+    for state in genome.states.values():
+        file_parts = filename.split('.')
+        file_parts[0] += '_state{}'.format(state.key)
+        state_filename = '.'.join(file_parts)
+        visualize_state(state, config, node_names, node_colors, fmt, view, state_filename)
+
+
+def visualize_state(state, config, node_names, node_colors, fmt, view, file_name):
+    """ This function visualizes a given state in the given file."""
+
+    if node_names is None:
+        node_names = {}
+
+    assert type(node_names) is dict
+
+    dot = graphviz.Digraph(format=fmt)
+    dot.attr(compound='true')
+
+    with dot.subgraph(name='cluster' + str(state.key)) as c:
+        c.attr(shape='circle')
+        c.attr(style='filled')
+        c.attr(color='lightgray')
+        c.attr(label='State ' + str(state.key))
+
+        # Draw inputs
+        for k in config.genome_config.input_keys:
+            name = node_names.get(k, str(k))
+            input_attrs = {'style': 'filled', 'shape': 'box', 'fillcolor': node_colors.get(k, 'lightgray')}
+            dot.node(name, _attributes=input_attrs)
+
+        # Draw outputs
+        for k in config.genome_config.output_keys:
+            name = node_names.get(k, str(k))
+            node_attrs = {'style': 'filled', 'fillcolor': node_colors.get(k, 'lightblue')}
+
+            dot.node(name, _attributes=node_attrs)
+
+        # Draw the weights on the nodes.
+        for i in range(config.genome_config.num_inputs):
+            for j in range(config.genome_config.num_outputs):
+                style = 'solid'
+                color = 'green' if state.weights[j][i] > 0 else 'red'
+                width = str(0.1 + abs(state.weights[j][i] / 5.0))
+                c.edge('-' + str(i + 1), str(j), _attributes={'style': style, 'color': color, 'penwidth': width})
+
+    dot.render(file_name, view=view)
+
+
+def conditions_to_str(conditions):
+    """ This function transforms conditions in a readable string."""
+
+    op_str_dict = {operator.eq: '=', operator.gt: '>', operator.lt: '<'}
+
+    return '[{0}]'.format(' & '.join(
+                's{} {} {:.2f}'.format(c[0], op_str_dict[c[1]], c[2]) for c in conditions))
 
 
 def visualize_stats(stats, fitness_out_file='avg_fitness.svg', species_out_file='species.svg'):
