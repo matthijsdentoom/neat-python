@@ -238,7 +238,13 @@ def draw_state_machine(config, genome, view=False, filename=None, node_names=Non
 
             begin, end = cg.key
             style = 'solid' if cg.enabled else 'dotted'
-            label = conditions_to_str(cg.conditions)
+
+            if hasattr(cg, 'or_comparison') and cg.or_comparison:
+                combine_symbol = '||'
+            else:
+                combine_symbol = '&&'
+
+            label = conditions_to_str(cg.conditions, combine_symbol)
             dot.edge('State ' + str(end), 'State ' + str(begin),
                      _attributes={'style': style, 'color': 'black', 'penwidth': '1', 'taillabel': label})
 
@@ -293,12 +299,12 @@ def visualize_state(state, config, node_names, node_colors, fmt, view, file_name
     dot.render(file_name, view=view)
 
 
-def conditions_to_str(conditions):
+def conditions_to_str(conditions, combine_symbol):
     """ This function transforms conditions in a readable string."""
 
     op_str_dict = {operator.eq: '=', operator.gt: '>', operator.lt: '<'}
 
-    return '[{0}]'.format(' & '.join(
+    return '[{0}]'.format(' {} '.format(combine_symbol).join(
                 's{} {} {:.2f}'.format(c[0], op_str_dict[c[1]], c[2]) for c in conditions))
 
 

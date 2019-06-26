@@ -44,7 +44,8 @@ class TransitionGene(BaseGene):
     """ Class representing the gene of a transition in the state machine. """
 
     _gene_attributes = [ConditionsAttribute('conditions'),
-                        BoolAttribute('enabled')]
+                        BoolAttribute('enabled'),
+                        BoolAttribute('or_comparison')]
 
     def __init__(self, key):
         assert isinstance(key, tuple), "TransitionGene key must be an tuple, not {!r}".format(key)
@@ -61,5 +62,6 @@ class TransitionGene(BaseGene):
         transition = TransitionGene(self.key)
         transition.conditions = copy.deepcopy(self.conditions)
         transition.enabled = self.enabled
+        transition.or_comparison = self.or_comparison
 
         return transition
