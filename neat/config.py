@@ -145,17 +145,19 @@ class Config(object):
                  ConfigParameter('num_generations', int),
                  ConfigParameter('num_runs', int),]
 
-    def __init__(self, genome_type, reproduction_type, species_set_type, stagnation_type, filename):
+    def __init__(self, genome_type, reproduction_type, species_set_type, stagnation_type, generation_type, filename):
         # Check that the provided types have the required methods.
         assert hasattr(genome_type, 'parse_config')
         assert hasattr(reproduction_type, 'parse_config')
         assert hasattr(species_set_type, 'parse_config')
         assert hasattr(stagnation_type, 'parse_config')
+        assert hasattr(generation_type, 'parse_config')
 
         self.genome_type = genome_type
         self.reproduction_type = reproduction_type
         self.species_set_type = species_set_type
         self.stagnation_type = stagnation_type
+        self.generation_type = generation_type
 
         if not os.path.isfile(filename):
             raise Exception('No such config file: ' + os.path.abspath(filename))
@@ -205,6 +207,9 @@ class Config(object):
         reproduction_dict = dict(parameters.items(reproduction_type.__name__))
         self.reproduction_config = reproduction_type.parse_config(reproduction_dict)
 
+        generation_dict = dict(parameters.items(generation_type.__name__))
+        self.generation_config = generation_type.parse_config(generation_dict)
+
         if parameters.has_section('General'):
             print('General parameter found and read')
 
@@ -230,3 +235,6 @@ class Config(object):
 
             f.write('\n[{0}]\n'.format(self.reproduction_type.__name__))
             self.reproduction_type.write_config(f, self.reproduction_config)
+
+            f.write('\n[{0}]\n'.format(self.generation_type.__name__))
+            self.generation_type.write_config(f, self.species_set_config)

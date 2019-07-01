@@ -39,7 +39,8 @@ class Population(object):
 
         if initial_state is None:
             # Create a population from scratch, then partition into species.
-            self.population = self.reproduction.create_new(config.genome_type,
+            generation = config.generation_type(config.generation_config, self.reproduction.genome_indexer)
+            self.population = generation.create_new(config.genome_type,
                                                            config.genome_config,
                                                            config.pop_size)
             self.species = config.species_set_type(config.species_set_config, self.reporters)

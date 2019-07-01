@@ -39,17 +39,6 @@ class DefaultReproduction:
         self.stagnation = stagnation
         self.ancestors = {}
 
-    def create_new(self, genome_type, genome_config, num_genomes):
-        new_genomes = {}
-        for i in range(num_genomes):
-            key = next(self.genome_indexer)
-            g = genome_type(key)
-            g.configure_new(genome_config)
-            new_genomes[key] = g
-            self.ancestors[key] = tuple()
-
-        return new_genomes
-
     @staticmethod
     def compute_spawn(adjusted_fitness, previous_sizes, pop_size, min_species_size):
         """ Compute the proper number of offspring per species (proportional to fitness)."""
