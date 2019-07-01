@@ -78,6 +78,12 @@ class StateMachineGenome(object):
         transition.init_attributes(config)
         return transition
 
+    def add_state(self, state):
+        self.states[state.key] = state
+
+    def add_transition(self, transition):
+        self.transitions[transition.key] = transition
+
     def clone(self, genome):
         """ This function clones the given genome in the current genome. """
         for key, connection in iteritems(genome.transitions):
