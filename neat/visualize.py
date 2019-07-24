@@ -240,9 +240,9 @@ def draw_state_machine(config, genome, view=False, filename=None, node_names=Non
             style = 'solid' if cg.enabled else 'dotted'
 
             if hasattr(cg, 'or_comparison') and cg.or_comparison:
-                combine_symbol = '||'
+                combine_symbol = '|'
             else:
-                combine_symbol = '&&'
+                combine_symbol = '&'
 
             label = conditions_to_str(cg.conditions, combine_symbol)
             dot.edge('State ' + str(end), 'State ' + str(begin),
@@ -304,8 +304,8 @@ def conditions_to_str(conditions, combine_symbol):
 
     op_str_dict = {operator.eq: '=', operator.gt: '>', operator.lt: '<'}
 
-    return '[{0}]'.format(' {} '.format(combine_symbol).join(
-                's{} {} {:.2f}'.format(c[0], op_str_dict[c[1]], c[2]) for c in conditions))
+    return '{1}[{0}]'.format(' {} '.format(combine_symbol).join(
+                's{} {} {:.2f}'.format(c[0], op_str_dict[c[1]], c[2]) for c in conditions), combine_symbol)
 
 
 def visualize_stats(stats, fitness_out_file='avg_fitness.svg', species_out_file='species.svg'):

@@ -46,8 +46,8 @@ class SingleExperiment:
         # Run experiments
         try:
             self.winner = self.p.run(self.eval_genomes, self.num_generations)
-        except Exception:
-            raise
+        except Exception as e:
+            print(e)
         finally:
             self.winner = self.p.best_genome
 
