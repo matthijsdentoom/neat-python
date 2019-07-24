@@ -2,6 +2,9 @@ import copy
 import operator
 import warnings
 
+import matplotlib
+matplotlib.use('Agg')
+
 import graphviz
 import matplotlib.pyplot as plt
 import numpy as np
