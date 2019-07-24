@@ -1,5 +1,7 @@
 from random import randint, random
 
+from neat.state_machine_base_genome import StateMachineBaseGenomeConfig
+from neat.state_machine_genes import StateGene, TransitionGene
 from neat.state_machine_genome import StateMachineGenome
 
 
@@ -9,6 +11,13 @@ class StateMachineFullGenome(StateMachineGenome):
     genomes of the same size.
     Furthermore this genome only works on fully connected state machines.
     """
+
+    @classmethod
+    def parse_config(cls, param_dict):
+        param_dict['node_gene_type'] = StateGene
+        param_dict['connection_gene_type'] = TransitionGene
+        return StateMachineBaseGenomeConfig(param_dict)
+
 
     def configure_new(self, config, num_states=None):
         """" Create a fully connected state machine with given number of states. """

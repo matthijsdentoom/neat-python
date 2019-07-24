@@ -9,12 +9,7 @@ class StateMachineBaseGenomeConfig:
     def __init__(self, params):
         self._params = [ConfigParameter('num_inputs', int),
                         ConfigParameter('num_outputs', int),
-                        ConfigParameter('num_initial_states', int),
-                        ConfigParameter('max_num_states', int, 1000),  # Note the default.
-                        ConfigParameter('state_add_prob', float),
-                        ConfigParameter('state_delete_prob', float),
-                        ConfigParameter('compatibility_disjoint_coefficient', float),
-                        ConfigParameter('compatibility_difference_coefficient', float)]
+                        ConfigParameter('num_initial_states', int)]
 
         # Create full set of available activation functions.
         self.activation_defs = ActivationFunctionSet()
@@ -26,7 +21,6 @@ class StateMachineBaseGenomeConfig:
         self._params += self.node_gene_type.get_config_params()
         self.connection_gene_type = params['connection_gene_type']
         self._params += self.connection_gene_type.get_config_params()
-
 
         # Use the configuration data to interpret the supplied parameters.
         for p in self._params:

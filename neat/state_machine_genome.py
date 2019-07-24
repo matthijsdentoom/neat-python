@@ -12,7 +12,13 @@ class StateMachineGenomeConfig(StateMachineBaseGenomeConfig):
     """ Class containing the parameters required to actually build the config file."""
 
     state_machine_params = [ConfigParameter('transition_add_prob', float),
-                            ConfigParameter('transition_delete_prob', float)]
+                            ConfigParameter('transition_delete_prob', float),
+                            ConfigParameter('max_num_states', int, 1000),  # Note the default.
+                            ConfigParameter('state_add_prob', float),
+                            ConfigParameter('state_delete_prob', float),
+                            ConfigParameter('compatibility_disjoint_coefficient', float),
+                            ConfigParameter('compatibility_difference_coefficient', float)
+                            ]
 
     def __init__(self, params):
 
