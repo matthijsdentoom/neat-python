@@ -4,7 +4,6 @@ from random import random
 import numpy as np
 from neat.state_machine_genome import StateMachineGenome
 
-from neat.genes import BaseGene
 from neat.state_machine_genes import StateGene
 
 from neat.state_machine_attributes import BiasesAttribute, WeightsAttribute
@@ -101,34 +100,12 @@ class StateSelectorGenome:
 
     def mutate(self, config):
 
-        if len(self.states) < config.max_num_states and random() < config.state_add_prob:
-            self.mutate_add_state(config)
-
-        if random() < config.state_delete_prob:
-            self.mutate_delete_state(config)
-
         # Mutate node genes (bias, response, etc.).
         for state in self.states.values():
             state.mutate(config)
 
         for selector in self.selectors.values():
             selector.mutate(config)
-
-    def mutate_add_state(self, config):
-
-        state_key = config.get_new_node_key()
-        new_state = StateMachineGenome.create_state(config, state_key)
-        new_selector = self.create_selector(config, state_key, len(self.states) + 1)
-
-        # Enter values in dictionary.
-        self.states[state_key] = new_state
-        self.selectors[state_key] = new_selector
-
-        # TODO: also add state to selector networks of other states.
-
-    def mutate_delete_state(self, config):
-        pass
-        # TODO: also remove from other states.
 
     def size(self):
         return len(self.states)
